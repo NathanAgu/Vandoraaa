@@ -98,7 +98,7 @@
         </div>
     {% endif %}
 
-    <form method="post">
+    <form method="post" action="{{ path('app_login_check') }}">
         <div class="form-group">
             <label for="inputUsername">Nom d'utilisateur</label>
             <input type="text" id="inputUsername" name="username" value="{{ last_username }}" required autofocus>

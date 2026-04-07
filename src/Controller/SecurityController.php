@@ -9,7 +9,7 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 final class SecurityController extends AbstractController
 {
-    #[Route('/login', name: 'app_login', methods: ['GET', 'POST'])]
+    #[Route('/login', name: 'app_login', methods: ['GET'])]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
         // if user is already logged in, redirect to home
@@ -27,6 +27,13 @@ final class SecurityController extends AbstractController
             'last_username' => $lastUsername,
             'error' => $error,
         ]);
+    }
+
+    #[Route('/login_check', name: 'app_login_check', methods: ['POST'])]
+    public function loginCheck(): Response
+    {
+        // This will be handled by Symfony's security login handler
+        throw new \LogicException('This method can be blank - it will be intercepted by the login firewall.');
     }
 
     #[Route('/logout', name: 'app_logout', methods: ['GET'])]
