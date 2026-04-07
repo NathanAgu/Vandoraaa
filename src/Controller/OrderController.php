@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Article;
 use App\Entity\Order;
 use App\Form\OrderType;
 use App\Repository\OrderRepository;
@@ -10,8 +11,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/order')]
+#[IsGranted('ROLE_USER')]
 final class OrderController extends AbstractController
 {
     #[Route(name: 'app_order_index', methods: ['GET'])]
@@ -22,10 +25,19 @@ final class OrderController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_order_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route('/new/{id}', name: 'app_order_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, Article $article, EntityManagerInterface $entityManager): Response
     {
+        // Prevent buying own article
+        if ($article->getSeller() === $this->getUser()) {
+            throw $this->createAccessDeniedException('Vous ne pouvez pas acheter votre propre article');
+        }
+
         $order = new Order();
+        $order->setArticle($article);
+        $order->setBuyer($this->getUser());
+        $order->setPrice($article->getPrice());
+
         $form = $this->createForm(OrderType::class, $order);
         $form->handleRequest($request);
 
@@ -33,11 +45,12 @@ final class OrderController extends AbstractController
             $entityManager->persist($order);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_order_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_article_show', ['id' => $article->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('order/new.html.twig', [
             'order' => $order,
+            'article' => $article,
             'form' => $form,
         ]);
     }

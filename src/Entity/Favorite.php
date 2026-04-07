@@ -6,6 +6,7 @@ use App\Repository\FavoriteRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: FavoriteRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Favorite
 {
     #[ORM\Id]
@@ -23,6 +24,14 @@ class Favorite
     #[ORM\ManyToOne(inversedBy: 'favorites')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Article $article = null;
+
+    #[ORM\PrePersist]
+    public function setCreatedAtValue(): void
+    {
+        if ($this->createdAt === null) {
+            $this->createdAt = new \DateTimeImmutable();
+        }
+    }
 
     public function getId(): ?int
     {

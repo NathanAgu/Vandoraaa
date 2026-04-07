@@ -1,0 +1,136 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un compte - Vandora{% endblock %}
+
+{% block body %}
+<style>
+    .register-container {
+        max-width: 500px;
+        margin: 3rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .register-container h1 {
+        text-align: center;
+        color: #09b1ba;
+        margin-bottom: 2rem;
+        font-size: 1.8rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #333;
+        font-weight: 600;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: #09b1ba;
+        box-shadow: 0 0 0 3px rgba(9, 177, 186, 0.1);
+    }
+
+    .form-error {
+        color: #d32f2f;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+
+    .register-button {
+        width: 100%;
+        padding: 0.75rem;
+        background: #09b1ba;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .register-button:hover {
+        background: #079aa3;
+    }
+
+    .login-link {
+        text-align: center;
+        margin-top: 1rem;
+        color: #666;
+    }
+
+    .login-link a {
+        color: #09b1ba;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .login-link a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="register-container">
+    <h1>✨ Créer un compte</h1>
+
+    {{ form_start(registrationForm) }}
+        <div class="form-group">
+            {{ form_label(registrationForm.username) }}
+            {{ form_widget(registrationForm.username) }}
+            {% if registrationForm.username.vars.errors|length %}
+                <div class="form-error">
+                    {% for error in registrationForm.username.vars.errors %}
+                        {{ error.message }}<br>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(registrationForm.plainPassword.first) }}
+            {{ form_widget(registrationForm.plainPassword.first) }}
+            {% if registrationForm.plainPassword.first.vars.errors|length %}
+                <div class="form-error">
+                    {% for error in registrationForm.plainPassword.first.vars.errors %}
+                        {{ error.message }}<br>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(registrationForm.plainPassword.second) }}
+            {{ form_widget(registrationForm.plainPassword.second) }}
+            {% if registrationForm.plainPassword.second.vars.errors|length %}
+                <div class="form-error">
+                    {% for error in registrationForm.plainPassword.second.vars.errors %}
+                        {{ error.message }}<br>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="register-button">Créer mon compte</button>
+    {{ form_end(registrationForm) }}
+
+    <div class="login-link">
+        Déjà inscrit ? <a href="{{ path('app_login') }}">Se connecter</a>
+    </div>
+</div>
+{% endblock %}

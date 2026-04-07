@@ -1,11 +1,344 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Order{% endblock %}
+{% block title %}Faire une proposition d'achat - {{ article.name }} - Vandora{% endblock %}
 
 {% block body %}
-    <h1>Create new Order</h1>
+<style>
+    .checkout-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 2rem;
+    }
 
-    {{ include('order/_form.html.twig') }}
+    .checkout-title {
+        font-size: 2rem;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
 
-    <a href="{{ path('app_order_index') }}">back to list</a>
+    .checkout-subtitle {
+        color: #666;
+        margin-bottom: 2rem;
+    }
+
+    .checkout-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    .article-summary {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        height: fit-content;
+    }
+
+    .article-summary h2 {
+        margin-top: 0;
+        font-size: 1.2rem;
+        color: #333;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid #09b1ba;
+        padding-bottom: 1rem;
+    }
+
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .summary-item:last-child {
+        border-bottom: none;
+    }
+
+    .summary-label {
+        color: #666;
+    }
+
+    .summary-value {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .summary-article-name {
+        max-width: 250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .price-highlight {
+        font-size: 1.5rem;
+        color: #09b1ba;
+        font-weight: 700;
+    }
+
+    .price-original {
+        font-size: 1.1rem;
+        color: #999;
+        text-decoration: line-through;
+        margin-right: 1rem;
+    }
+
+    .seller-info {
+        background: #f9f9f9;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+        border-left: 3px solid #09b1ba;
+    }
+
+    .seller-label {
+        font-size: 0.9rem;
+        color: #666;
+        text-transform: uppercase;
+    }
+
+    .seller-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .checkout-form {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .checkout-form h2 {
+        margin-top: 0;
+        font-size: 1.2rem;
+        color: #333;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid #09b1ba;
+        padding-bottom: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e5e5e5;
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: 1rem;
+        box-sizing: border-box;
+    }
+
+    .form-group input[type="number"] {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e5e5e5;
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: 1rem;
+        box-sizing: border-box;
+    }
+
+    .form-group textarea:focus,
+    .form-group select:focus,
+    .form-group input[type="number"]:focus {
+        outline: none;
+        border-color: #09b1ba;
+        box-shadow: 0 0 0 3px rgba(9, 177, 186, 0.1);
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .help-text {
+        font-size: 0.9rem;
+        color: #999;
+        margin-top: 0.3rem;
+    }
+
+    .info-box {
+        background: #f0f7ff;
+        border-left: 4px solid #09b1ba;
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+        color: #333;
+    }
+
+    .info-box strong {
+        color: #09b1ba;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn-submit {
+        flex: 1;
+        padding: 1rem;
+        background: #09b1ba;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s;
+        font-size: 1rem;
+    }
+
+    .btn-submit:hover {
+        background: #079aa3;
+    }
+
+    .btn-cancel {
+        padding: 1rem 1.5rem;
+        background: white;
+        color: #09b1ba;
+        border: 2px solid #09b1ba;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-cancel:hover {
+        background: #09b1ba;
+        color: white;
+    }
+
+    .read-only-field {
+        background: #f5f5f5;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        color: #666;
+    }
+
+    @media (max-width: 768px) {
+        .checkout-content {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn-cancel {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="checkout-container">
+    <h1 class="checkout-title">� Faire une proposition d'achat</h1>
+    <p class="checkout-subtitle">Proposez un prix au vendeur</p>
+
+    <div class="checkout-content">
+        <div class="article-summary">
+            <h2>Résumé de l'article</h2>
+
+            <div class="summary-item">
+                <span class="summary-label">Article :</span>
+                <span class="summary-value summary-article-name">{{ article.name }}</span>
+            </div>
+
+            {% if article.brand %}
+                <div class="summary-item">
+                    <span class="summary-label">Marque :</span>
+                    <span class="summary-value">{{ article.brand }}</span>
+                </div>
+            {% endif %}
+
+            {% if article.state %}
+                <div class="summary-item">
+                    <span class="summary-label">État :</span>
+                    <span class="summary-value">{{ article.state }}</span>
+                </div>
+            {% endif %}
+
+            <div class="summary-item">
+                <span class="summary-label">Prix demandé :</span>
+                <span class="summary-value price-highlight">{{ article.price|number_format(2, ',', ' ') }} €</span>
+            </div>
+
+            <div class="seller-info">
+                <div class="seller-label">Vendeur :</div>
+                <div class="seller-name">{{ article.seller.username }}</div>
+            </div>
+        </div>
+
+        <div class="checkout-form">
+            <h2>Votre proposition</h2>
+
+            <div class="info-box">
+                <strong>💡 Conseil :</strong> Proposez un prix légèrement en dessous du prix demandé. Le vendeur pourra accepter, refuser ou négocier.
+            </div>
+
+            {{ form_start(form) }}
+
+            <div class="form-group">
+                {{ form_label(form.price, 'Votre prix proposé (€)') }}
+                {{ form_widget(form.price, {
+                    'attr': {
+                        'placeholder': article.price,
+                        'step': '0.01',
+                        'min': '0'
+                    }
+                }) }}
+                <p class="help-text">Prix actuel : {{ article.price|number_format(2, ',', ' ') }} €</p>
+            </div>
+
+            {% if form.message is defined %}
+                <div class="form-group">
+                    {{ form_label(form.message, 'Message au vendeur (optionnel)') }}
+                    {{ form_widget(form.message, {
+                        'attr': {
+                            'placeholder': 'Ex: "Peux-tu descendre à 50€ ?" ou "Ton article m\'intéresse, es-tu dispo ?"'
+                        }
+                    }) }}
+                    <p class="help-text">Vous pouvez justifier votre prix ou poser une question</p>
+                </div>
+            {% endif %}
+
+            {% if form.status is defined %}
+                <div class="form-group">
+                    {{ form_label(form.status, 'Statut initial') }}
+                    {{ form_widget(form.status) }}
+                </div>
+            {% endif %}
+
+            <div class="form-actions">
+                {{ form_widget(form.submit, {
+                    'label': '✓ Envoyer la proposition',
+                    'attr': {'class': 'btn-submit'}
+                }) }}
+                <a href="{{ path('app_article_show', {'id': article.id}) }}" class="btn-cancel">Annuler</a>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
 {% endblock %}

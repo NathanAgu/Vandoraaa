@@ -1,0 +1,247 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Profil - Vandora{% endblock %}
+
+{% block body %}
+<style>
+    .profile-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 2rem;
+    }
+
+    .profile-header {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+    }
+
+    .profile-header h1 {
+        color: #09b1ba;
+        margin-bottom: 1rem;
+        font-size: 2rem;
+    }
+
+    .profile-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-card {
+        background: #f9f9f9;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border-left: 4px solid #09b1ba;
+    }
+
+    .info-card h3 {
+        color: #666;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+        letter-spacing: 0.5px;
+    }
+
+    .info-card p {
+        color: #333;
+        font-size: 1.1rem;
+        font-weight: 600;
+        word-break: break-word;
+    }
+
+    .profile-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, #09b1ba 0%, #0d8a92 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary {
+        padding: 0.75rem 1.5rem;
+        background: #09b1ba;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: inline-block;
+    }
+
+    .btn-primary:hover {
+        background: #079aa3;
+    }
+
+    .btn-secondary {
+        padding: 0.75rem 1.5rem;
+        background: white;
+        color: #09b1ba;
+        border: 2px solid #09b1ba;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-block;
+    }
+
+    .btn-secondary:hover {
+        background: #09b1ba;
+        color: white;
+    }
+
+    .articles-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .articles-section h2 {
+        color: #333;
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+        border-bottom: 2px solid #09b1ba;
+        padding-bottom: 0.5rem;
+    }
+
+    .articles-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .empty-message {
+        text-align: center;
+        color: #999;
+        padding: 2rem;
+        grid-column: 1 / -1;
+    }
+
+    .empty-message p {
+        margin-bottom: 1rem;
+    }
+</style>
+
+<div class="profile-container">
+    <div class="profile-header">
+        <h1>👤 Mon Profil</h1>
+
+        <div class="profile-info">
+            <div class="info-card">
+                <h3>Nom d'utilisateur</h3>
+                <p>{{ user.username }}</p>
+            </div>
+
+            {% if user.country %}
+                <div class="info-card">
+                    <h3>Pays</h3>
+                    <p>{{ user.country }}</p>
+                </div>
+            {% endif %}
+
+            {% if user.city %}
+                <div class="info-card">
+                    <h3>Ville</h3>
+                    <p>{{ user.city }}</p>
+                </div>
+            {% endif %}
+
+            <div class="info-card">
+                <h3>Membre depuis</h3>
+                <p>{{ user.createdAt|date('d/m/Y') }}</p>
+            </div>
+        </div>
+
+        {% if user.description %}
+            <div class="info-card" style="grid-column: 1 / -1;">
+                <h3>À propos</h3>
+                <p>{{ user.description }}</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="profile-stats">
+        <div class="stat-card">
+            <div class="stat-number">{{ user.articles|length }}</div>
+            <div class="stat-label">Articles en vente</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ user.orders|length }}</div>
+            <div class="stat-label">Commandes</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ user.reviews|length }}</div>
+            <div class="stat-label">Avis reçus</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ user.favorites|length }}</div>
+            <div class="stat-label">Favoris</div>
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <a href="{{ path('app_article_new') }}" class="btn-primary">✨ Créer un article</a>
+        <a href="{{ path('app_home') }}" class="btn-secondary">Retour à l'accueil</a>
+    </div>
+
+    {% if user.articles|length > 0 %}
+        <div class="articles-section">
+            <h2>📦 Mes articles</h2>
+            <div class="articles-grid">
+                {% for article in user.articles %}
+                    <div style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+                        <div style="height: 150px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #999;">
+                            📦
+                        </div>
+                        <div style="padding: 1rem;">
+                            <h3 style="margin-bottom: 0.5rem; font-size: 1rem;">{{ article.name }}</h3>
+                            <p style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem;">{{ article.brand ?? 'Sans marque' }}</p>
+                            <a href="{{ path('app_article_show', {'id': article.id}) }}" style="color: #09b1ba; text-decoration: none; font-weight: 600;">Voir →</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <div class="articles-section">
+            <div class="empty-message">
+                <p>Vous n'avez pas encore d'articles en vente</p>
+                <a href="{{ path('app_article_new') }}" class="btn-primary">Créer mon premier article</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

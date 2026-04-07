@@ -2,11 +2,12 @@
 
 namespace App\Form;
 
-use App\Entity\Article;
 use App\Entity\Order;
-use App\Entity\User;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\MoneyType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -15,22 +16,30 @@ class OrderType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('price')
-            ->add('message')
-            ->add('status')
-            ->add('createdAt', null, [
-                'widget' => 'single_text'
+            ->add('price', MoneyType::class, [
+                'label' => 'Prix proposé (€)',
+                'currency' => 'EUR',
+                'attr' => ['placeholder' => '0,00']
             ])
-            ->add('updatedAt', null, [
-                'widget' => 'single_text'
+            ->add('message', TextareaType::class, [
+                'label' => 'Message au vendeur (optionnel)',
+                'required' => false,
+                'attr' => ['placeholder' => 'Proposez un prix, posez des questions...']
             ])
-            ->add('buyer', EntityType::class, [
-                'class' => User::class,
-                'choice_label' => 'id',
+            ->add('status', ChoiceType::class, [
+                'label' => 'Statut initial',
+                'choices' => [
+                    'En attente' => 'pending',
+                    'Confirmée' => 'confirmed',
+                    'Expédiée' => 'shipped',
+                    'Livrée' => 'delivered',
+                    'Annulée' => 'cancelled',
+                ],
+                'data' => 'pending'
             ])
-            ->add('article', EntityType::class, [
-                'class' => Article::class,
-                'choice_label' => 'id',
+            ->add('submit', SubmitType::class, [
+                'label' => '✓ Faire une proposition',
+                'attr' => ['class' => 'btn-submit']
             ])
         ;
     }

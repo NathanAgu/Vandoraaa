@@ -1,11 +1,157 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Review{% endblock %}
+{% block title %}Laisser un avis{% if targetUser %} sur {{ targetUser.username }}{% endif %} - Vandora{% endblock %}
 
 {% block body %}
-    <h1>Create new Review</h1>
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 3rem auto;
+        padding: 0 2rem;
+    }
 
-    {{ include('review/_form.html.twig') }}
+    .form-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
 
-    <a href="{{ path('app_review_index') }}">back to list</a>
+    .form-header h1 {
+        font-size: 2rem;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-header p {
+        color: #666;
+        font-size: 1.05rem;
+    }
+
+    .review-form {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e5e5e5;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 1rem;
+        box-sizing: border-box;
+    }
+
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #09b1ba;
+        box-shadow: 0 0 0 3px rgba(9, 177, 186, 0.1);
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 150px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn-submit {
+        flex: 1;
+        padding: 0.85rem;
+        background: #09b1ba;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background 0.2s;
+    }
+
+    .btn-submit:hover {
+        background: #079aa3;
+    }
+
+    .btn-cancel {
+        padding: 0.85rem 1.5rem;
+        background: white;
+        color: #09b1ba;
+        border: 2px solid #09b1ba;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-cancel:hover {
+        background: #09b1ba;
+        color: white;
+    }
+
+    .seller-info {
+        background: #f0f7ff;
+        border-left: 4px solid #09b1ba;
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1.5rem;
+    }
+
+    .seller-info strong {
+        color: #09b1ba;
+    }
+</style>
+
+<div class="form-container">
+    <div class="form-header">
+        <h1>⭐ Laisser un avis</h1>
+        <p>Donnez votre avis sur votre expérience avec ce vendeur</p>
+    </div>
+
+    {% if targetUser %}
+        <div class="seller-info">
+            Vous êtes en train de laisser un avis sur <strong>{{ targetUser.username }}</strong>
+        </div>
+    {% endif %}
+
+    <form method="post" class="review-form">
+        {% for child in form %}
+            {% if child.vars.name not in ['_token'] %}
+                <div class="form-group">
+                    {{ form_label(child) }}
+                    {{ form_widget(child) }}
+                    {{ form_errors(child) }}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        <div class="form-actions">
+            {{ form_widget(form.submit, {
+                'label': '✓ Envoyer mon avis',
+                'attr': {'class': 'btn-submit'}
+            }) }}
+            <a href="{{ path('app_article_index') }}" class="btn-cancel">Annuler</a>
+        </div>
+
+        {{ form_rest(form) }}
+    </form>
+</div>
 {% endblock %}

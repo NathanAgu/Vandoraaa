@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Review;
+use App\Entity\User;
 use App\Form\ReviewType;
 use App\Repository\ReviewRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -10,8 +11,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/review')]
+#[IsGranted('ROLE_USER')]
 final class ReviewController extends AbstractController
 {
     #[Route(name: 'app_review_index', methods: ['GET'])]
@@ -22,10 +25,13 @@ final class ReviewController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_review_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route('/new/{id}', name: 'app_review_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, User $targetUser, EntityManagerInterface $entityManager): Response
     {
         $review = new Review();
+        $review->setTargetUser($targetUser);
+        $review->setAuthor($this->getUser());
+
         $form = $this->createForm(ReviewType::class, $review);
         $form->handleRequest($request);
 
@@ -33,12 +39,13 @@ final class ReviewController extends AbstractController
             $entityManager->persist($review);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_review_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_profile_public', ['id' => $targetUser->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('review/new.html.twig', [
             'review' => $review,
             'form' => $form,
+            'targetUser' => $targetUser,
         ]);
     }
 
@@ -53,13 +60,17 @@ final class ReviewController extends AbstractController
     #[Route('/{id}/edit', name: 'app_review_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Review $review, EntityManagerInterface $entityManager): Response
     {
+        if ($review->getAuthor() !== $this->getUser()) {
+            throw $this->createAccessDeniedException('Vous pouvez uniquement éditer vos propres avis');
+        }
+
         $form = $this->createForm(ReviewType::class, $review);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_review_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_profile_public', ['id' => $review->getTargetUser()->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('review/edit.html.twig', [
@@ -71,11 +82,17 @@ final class ReviewController extends AbstractController
     #[Route('/{id}', name: 'app_review_delete', methods: ['POST'])]
     public function delete(Request $request, Review $review, EntityManagerInterface $entityManager): Response
     {
+        if ($review->getAuthor() !== $this->getUser()) {
+            throw $this->createAccessDeniedException('Vous pouvez uniquement supprimer vos propres avis');
+        }
+
+        $targetUserId = $review->getTargetUser()->getId();
+
         if ($this->isCsrfTokenValid('delete'.$review->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($review);
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_review_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_profile_public', ['id' => $targetUserId], Response::HTTP_SEE_OTHER);
     }
 }

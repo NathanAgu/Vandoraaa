@@ -1,54 +1,421 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Article{% endblock %}
+{% block title %}{{ article.name }} - Vandora{% endblock %}
 
 {% block body %}
-    <h1>Article</h1>
+<style>
+    .article-detail-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 2rem;
+    }
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ article.id }}</td>
-            </tr>
-            <tr>
-                <th>Name</th>
-                <td>{{ article.name }}</td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                <td>{{ article.description }}</td>
-            </tr>
-            <tr>
-                <th>Brand</th>
-                <td>{{ article.brand }}</td>
-            </tr>
-            <tr>
-                <th>State</th>
-                <td>{{ article.state }}</td>
-            </tr>
-            <tr>
-                <th>Price</th>
-                <td>{{ article.price }}</td>
-            </tr>
-            <tr>
-                <th>Status</th>
-                <td>{{ article.status ? 'Yes' : 'No' }}</td>
-            </tr>
-            <tr>
-                <th>CreatedAt</th>
-                <td>{{ article.createdAt ? article.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>UpdatedAt</th>
-                <td>{{ article.updatedAt ? article.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-        </tbody>
-    </table>
+    .article-detail {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
 
-    <a href="{{ path('app_article_index') }}">back to list</a>
+    .article-image-section {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f5f5f5;
+        border-radius: 8px;
+        min-height: 400px;
+        font-size: 5rem;
+    }
 
-    <a href="{{ path('app_article_edit', {'id': article.id}) }}">edit</a>
+    .article-info h1 {
+        font-size: 2rem;
+        color: #333;
+        margin-bottom: 1rem;
+    }
 
-    {{ include('article/_delete_form.html.twig') }}
+    .article-meta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .meta-item {
+        background: #f9f9f9;
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 3px solid #09b1ba;
+    }
+
+    .meta-label {
+        font-size: 0.85rem;
+        color: #666;
+        text-transform: uppercase;
+        margin-bottom: 0.3rem;
+        letter-spacing: 0.5px;
+    }
+
+    .meta-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .article-price {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #09b1ba;
+        margin-bottom: 1rem;
+    }
+
+    .article-description {
+        background: #f9f9f9;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+        color: #555;
+    }
+
+    .seller-card {
+        background: linear-gradient(135deg, #09b1ba 0%, #0d8a92 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+
+    .seller-card h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 0.95rem;
+        opacity: 0.9;
+    }
+
+    .seller-name {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .seller-link {
+        display: inline-block;
+        background: white;
+        color: #09b1ba;
+        padding: 0.75rem 1.5rem;
+        border-radius: 20px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .seller-link:hover {
+        background: #f0f0f0;
+        transform: translateY(-2px);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-order {
+        flex: 1;
+        padding: 0.75rem 1.5rem;
+        background: #09b1ba;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+        font-size: 1rem;
+        text-align: center;
+    }
+
+    .btn-order:hover {
+        background: #079aa3;
+    }
+
+    .btn-edit {
+        padding: 0.75rem 1.5rem;
+        background: #f59e0b;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-edit:hover {
+        background: #d97706;
+    }
+
+    .btn-delete {
+        padding: 0.75rem 1.5rem;
+        background: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-delete:hover {
+        background: #dc2626;
+    }
+
+    .btn-back {
+        padding: 0.75rem 1.5rem;
+        background: white;
+        color: #09b1ba;
+        border: 2px solid #09b1ba;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-block;
+    }
+
+    .btn-back:hover {
+        background: #09b1ba;
+        color: white;
+    }
+
+    .owner-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn-favorite {
+        padding: 0.75rem 1.5rem;
+        background: white;
+        color: #ef4444;
+        border: 2px solid #ef4444;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+    }
+
+    .btn-favorite:hover {
+        background: #ef4444;
+        color: white;
+    }
+
+    .btn-favorite.active {
+        background: #ef4444;
+        color: white;
+    }
+
+    .seller-reviews {
+        margin-top: 3rem;
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .seller-reviews h2 {
+        margin: 0 0 1.5rem 0;
+        color: #333;
+        border-bottom: 2px solid #09b1ba;
+        padding-bottom: 1rem;
+    }
+
+    .reviews-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .review-card {
+        background: #f9f9f9;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border-left: 4px solid #09b1ba;
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .review-author {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .review-rating {
+        font-size: 1.2rem;
+        color: #fbbf24;
+    }
+
+    .review-text {
+        color: #555;
+        line-height: 1.5;
+        margin-bottom: 0.75rem;
+    }
+
+    .review-date {
+        font-size: 0.85rem;
+        color: #999;
+    }
+
+    .no-reviews {
+        text-align: center;
+        padding: 2rem;
+        color: #999;
+    }
+
+    @media (max-width: 768px) {
+        .article-detail {
+            grid-template-columns: 1fr;
+        }
+
+        .article-meta {
+            grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="article-detail-container">
+    <div class="article-detail">
+        <div class="article-image-section">
+            📦
+        </div>
+
+        <div class="article-info">
+            <h1>{{ article.name }}</h1>
+
+            <div class="article-price">{{ article.price|number_format(2, ',', ' ') }} €</div>
+
+            <div class="article-meta">
+                {% if article.brand %}
+                    <div class="meta-item">
+                        <div class="meta-label">Marque</div>
+                        <div class="meta-value">{{ article.brand }}</div>
+                    </div>
+                {% endif %}
+
+                {% if article.state %}
+                    <div class="meta-item">
+                        <div class="meta-label">État</div>
+                        <div class="meta-value">{{ article.state }}</div>
+                    </div>
+                {% endif %}
+
+                <div class="meta-item">
+                    <div class="meta-label">Publié</div>
+                    <div class="meta-value">{{ article.createdAt|date('d/m/Y') }}</div>
+                </div>
+
+                {% if article.category %}
+                    <div class="meta-item">
+                        <div class="meta-label">Catégorie</div>
+                        <div class="meta-value">{{ article.category.name }}</div>
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if article.description %}
+                <div class="article-description">
+                    <strong>Description :</strong><br>
+                    {{ article.description }}
+                </div>
+            {% endif %}
+
+            <div class="seller-card">
+                <h3>Vendu par</h3>
+                <div class="seller-name">{{ article.seller.username }}</div>
+                <a href="{{ path('app_profile_public', {'id': article.seller.id}) }}" class="seller-link">
+                    Voir le profil du vendeur →
+                </a>
+            </div>
+
+            {% if app.user and app.user != article.seller %}
+                <div class="action-buttons">
+                    <a href="{{ path('app_order_new', {'id': article.id}) }}" class="btn-order">🛒 Proposer un achat</a>
+                    <form method="post" action="{{ path('app_favorite_toggle', {'id': article.id}) }}" style="display: inline; flex: 1;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('favorite' ~ article.id) }}">
+                        {% set isFavorited = false %}
+                        {% for favorite in article.favorites %}
+                            {% if favorite.user == app.user %}
+                                {% set isFavorited = true %}
+                            {% endif %}
+                        {% endfor %}
+                        <button type="submit" class="btn-favorite {% if isFavorited %}active{% endif %}">
+                            {% if isFavorited %}❤️ En favori{% else %}🤍 Ajouter aux favoris{% endif %}
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+
+            {% if app.user == article.seller %}
+                <div class="owner-actions">
+                    <a href="{{ path('app_article_edit', {'id': article.id}) }}" class="btn-edit">✏️ Éditer</a>
+                    <form method="post" style="display: inline;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ article.id) }}">
+                        <button type="submit" class="btn-delete" onclick="return confirm('Êtes-vous sûr ?')">🗑️ Supprimer</button>
+                    </form>
+                </div>
+            {% endif %}
+
+            <div style="margin-top: 2rem;">
+                <a href="{{ path('app_home') }}" class="btn-back">← Retour à l'accueil</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="seller-reviews">
+        <h2>⭐ Avis sur le vendeur</h2>
+
+        {% if article.seller.reviews|length > 0 %}
+            <div class="reviews-grid">
+                {% for review in article.seller.reviews %}
+                    <div class="review-card">
+                        <div class="review-header">
+                            <span class="review-author">{{ review.author.username }}</span>
+                            <span class="review-rating">
+                                {% for i in 1..review.rating %}⭐{% endfor %}
+                            </span>
+                        </div>
+                        {% if review.description %}
+                            <p class="review-text">{{ review.description }}</p>
+                        {% endif %}
+                        <p class="review-date">{{ review.createdAt|date('d/m/Y') }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% if app.user %}
+                <div style="text-align: center; margin-top: 2rem;">
+                    <a href="{{ path('app_review_new', {'id': article.seller.id}) }}" class="btn-order">✏️ Laisser un avis</a>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="no-reviews">
+                <p>Aucun avis pour le moment.</p>
+                {% if app.user %}
+                    <a href="{{ path('app_review_new', {'id': article.seller.id}) }}" class="btn-order" style="display: inline-block; margin-top: 1rem;">✏️ Soyez le premier à laisser un avis</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}
