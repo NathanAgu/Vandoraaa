@@ -93,4 +93,34 @@ final class ArticleController extends AbstractController
 
         return $this->redirectToRoute('app_article_index', [], Response::HTTP_SEE_OTHER);
     }
+    
+    #[Route('/{id}/duplicate', name: 'app_article_duplicate', methods: ['POST'])]
+    public function duplicate(Request $request, Article $article, EntityManagerInterface $entityManager): Response
+    {
+        // Seul le propriétaire peut dupliquer
+        if ($article->getSeller() !== $this->getUser()) {
+            throw $this->createAccessDeniedException('You can only duplicate your own articles');
+        }
+
+        if ($this->isCsrfTokenValid('duplicate'.$article->getId(), $request->getPayload()->getString('_token'))) {
+            $duplicatedArticle = clone $article;
+
+            // Important : nouveau nom
+            $duplicatedArticle->setName($article->getName() . ' - Copie');
+
+            // Optionnel mais conseillé : nouvelle date de création
+            $duplicatedArticle->setCreatedAt(new \DateTimeImmutable());
+
+            $entityManager->persist($duplicatedArticle);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_article_show', [
+                'id' => $duplicatedArticle->getId(),
+            ], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->redirectToRoute('app_article_show', [
+            'id' => $article->getId(),
+        ], Response::HTTP_SEE_OTHER);
+    }
 }

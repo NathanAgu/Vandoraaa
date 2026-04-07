@@ -292,6 +292,20 @@
             flex-direction: column;
         }
     }
+    .btn-duplicate {
+        padding: 0.75rem 1.5rem;
+        background: #8b5cf6;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-duplicate:hover {
+        background: #7c3aed;
+    } 
 </style>
 
 <div class="article-detail-container">
@@ -369,9 +383,19 @@
             {% if app.user == article.seller %}
                 <div class="owner-actions">
                     <a href="{{ path('app_article_edit', {'id': article.id}) }}" class="btn-edit">✏️ Éditer</a>
-                    <form method="post" style="display: inline;">
+
+                    <form method="post" action="{{ path('app_article_duplicate', {'id': article.id}) }}" style="display: inline;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('duplicate' ~ article.id) }}">
+                        <button type="submit" class="btn-duplicate">
+                            📄 Dupliquer
+                        </button>
+                    </form>
+                    
+                    <form method="post" action="{{ path('app_article_delete', {'id': article.id}) }}" style="display: inline;">
                         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ article.id) }}">
-                        <button type="submit" class="btn-delete" onclick="return confirm('Êtes-vous sûr ?')">🗑️ Supprimer</button>
+                        <button type="submit" class="btn-delete" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette annonce ?')">
+                            🗑️ Supprimer
+                        </button>
                     </form>
                 </div>
             {% endif %}
